@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VenzSensix Store</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-dark: #07090f;
+            --bg-card: #111522;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --glass-bg: rgba(17, 21, 34, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding-bottom: 90px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Utility Icons */
+        svg {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
+
+        .text-blue {
+            color: var(--primary);
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            color: var(--text-main);
+            transition: 0.3s;
+        }
+
+        .menu-icon:hover {
+            color: var(--primary);
+        }
+
+        /* Sidebar Styling */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+        
+        .close-btn:hover { color: #ef4444; }
+
+        .sidebar-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-list a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background-color: transparent;
+            border: 1px solid transparent;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .sidebar-list a:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--primary);
+        }
+
+        /* Header Hero */
+        .hero {
+            text-align: center;
+            padding: 48px 20px;
+            background: radial-gradient(circle at top, #1e293b 0%, var(--bg-dark) 70%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .container {
+            padding: 24px;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 24px 0;
+            color: var(--text-main);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* Header Categories */
+        .filter-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        /* Search Box */
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 14px 16px;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box button {
+            background-color: var(--primary);
+            border: none;
+            padding: 0 20px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .search-box button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-bottom: 28px;
+            padding-bottom: 5px;
+        }
+
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            background-color: var(--bg-card);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background-color: #1e293b;
+            color: var(--text-main);
+        }
+
+        .category-btn.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            animation: fadeIn 0.4s ease-in-out;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            border-color: #334155;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .platform-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: white;
+            font-size: 0.60rem;
+            font-weight: 800;
+            padding: 5px 8px;
+            border-radius: 0 0 0 8px;
+            z-index: 10;
+            letter-spacing: 0.5px;
+            box-shadow: -2px 2px 8px rgba(0,0,0,0.2);
+            background-color: #8b5cf6; /* default warna ungu untuk both */
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            background-color: #1e293b;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-content {
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+
+        /* DI SINI DAFTAR HARGA DISEMBUNYIKAN DARI TAMPILAN KARTU */
+        .price-list {
+            display: none; 
+        }
+
+        .buy-btn {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .buy-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Floating Help Button */
+        .help-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: var(--text-main);
+            color: var(--bg-dark);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 90;
+            transition: 0.3s;
+        }
+
+        .help-btn:hover {
+            transform: scale(1.05);
+            background-color: #e2e8f0;
+        }
+
+        /* Modal / Popup Checkout Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px) scale(0.95);
+            transition: 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .modal-close:hover { color: #ef4444; }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .form-control[readonly] {
+            color: var(--primary);
+            font-weight: 700;
+            cursor: not-allowed;
+        }
+
+        .modal-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 24px;
+            transition: 0.3s;
+        }
+
+        .modal-submit:hover {
+            background-color: #059669;
+        }
+
+        /* Chat AI Box Styling */
+        .chat-box {
+            position: fixed;
+            bottom: 85px;
+            right: 24px;
+            width: 300px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chat-box.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chat-header-bar {
+            background-color: var(--primary);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .chat-close-icon {
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .chat-close-icon:hover {
+            opacity: 0.7;
+        }
+
+        .chat-body {
+            padding: 20px;
+            background-color: var(--bg-dark);
+            min-height: 120px;
+        }
+
+        .chat-bubble {
+            background-color: #1e293b;
+            color: var(--text-main);
+            padding: 16px;
+            border-radius: 0 12px 12px 12px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .chat-bubble a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            word-break: break-all;
+            display: inline-block;
+            margin-top: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: 0.3s;
+        }
+
+        .chat-bubble a:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .chat-box {
+                width: calc(100% - 48px);
+                bottom: 85px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar & Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 style="font-size: 1.1rem; letter-spacing: 1px;">Menu Utama</h3>
+            <span class="close-btn" id="closeBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </span>
+        </div>
+        <ul class="sidebar-list">
+            <li>
+                <a href="#" onclick="filterGame('all')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
+                    List All Item
+                </a>
+            </li>
+            <li>
+                <a href="https://www.tiktok.com/@venz_sensix" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+                    TikTok: @venz_sensix
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Modal Checkout (Popup Pembayaran) -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-box">
+            <div class="modal-close" onclick="closeModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div class="modal-header">
+                <h3>Form Pemesanan</h3>
+            </div>
+            
+            <div class="form-group">
+                <label>Nama Barang</label>
+                <input type="text" id="modalItemName" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Pilih Paket (Hari / Harga)</label>
+                <select id="modalPackageSelect" class="form-control">
+                    <!-- Opsi akan diisi otomatis dari list tersembunyi -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Metode Pembayaran</label>
+                <select id="modalPaymentSelect" class="form-control">
+                    <option value="DANA">DANA</option>
+                    <option value="GOPAY">GOPAY</option>
+                    <option value="OVO">OVO</option>
+                    <option value="BCA">Transfer Bank (BCA)</option>
+                    <option value="QRIS">QRIS</option>
+                </select>
+            </div>
+
+            <button class="modal-submit" onclick="processOrder()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Lanjut ke WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat AI Box -->
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header-bar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>
+                AI Assistant
+            </div>
+            <div class="chat-close-icon" onclick="toggleChat()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+        </div>
+        <div class="chat-body">
+            <div class="chat-bubble">
+                Order ke nomor saya.<br>
+                Dan join saluran:
+                <a href="https://whatsapp.com/channel/0029Vb6tfKS1yT21u7fUSZ2L" target="_blank">
+                    Link Saluran WA
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">VENZ<span class="text-blue">SENSIX</span></div>
+        <div class="menu-icon" id="menuIcon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </div>
+    </nav>
+
+    <!-- Header Hero -->
+    <header class="hero">
+        <h1>VENZ <span class="text-blue">SENSIX</span></h1>
+        <p>@venzsensix</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <h2 class="section-title">LIST ALL ITEM</h2>
+
+        <!-- Search & Filter -->
+        <div class="filter-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+            <span class="text-blue">KATEGORI</span> POPULER
+        </div>
+        
+        <div class="search-box">
+            <input type="text" placeholder="Mau cari cheat apa hari ini?">
+            <button>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+        </div>
+
+        <div class="categories">
+            <button class="category-btn active" data-filter="all">ALL</button>
+            <button class="category-btn" data-filter="ff">FF</button>
+            <button class="category-btn" data-filter="ml">ML</button>
+            <button class="category-btn" data-filter="pubg">PUBG</button>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="product-grid" id="productGrid">
+
+            <!-- Card 1 (FF) -->
+            <div class="card" data-category="ff">
+                <div class="platform-badge">ANDRO & IOS</div>
+                <img src="ff.jpg" class="card-img" alt="FF Mod" onerror="this.src='https://placehold.co/400x400/1e293b/3b82f6?text=FF'">
+                <div class="card-content">
+                    <div class="card-title">FF MOD MENU (IPHONE & ANDROID)</div>
+                    <!-- Data harga disembunyikan (display: none) tapi tetap bisa dibaca oleh popup -->
+                    <div class="price-list">
+                        <div class="price-item"><span>1 DAY</span> <span>50K</span></div>
+                        <div class="price-item"><span>7 DAY</span> <span>150K</span></div>
+                        <div class="price-item"><span>30 DAY</span> <span>300K</span></div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        BELI SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2 (FF CHEAT) -->
+            <div class="card" data-category="ff">
+                <div class="platform-badge">ANDRO & IOS</div>
+                <img src="ff.jpg" class="card-img" alt="FF Mod Cheat" onerror="this.src='https://placehold.co/400x400/1e293b/3b82f6?text=FF'">
+                <div class="card-content">
+                    <div class="card-title">FF MOD MENU (CHEAT)</div>
+                    <div class="price-list">
+                        <div class="price-item"><span>3 DAY</span> <span>50K</span></div>
+                        <div class="price-item"><span>7 DAY</span> <span>100K</span></div>
+                        <div class="price-item"><span>30 DAY</span> <span>200K</span></div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        BELI SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3 (SatoruSatoruTools) -->
+            <div class="card" data-category="ff">
+                <div class="platform-badge">ANDRO & IOS</div>
+                <img src="ff.jpg" class="card-img" alt="SatoruSatoruTools" onerror="this.src='https://placehold.co/400x400/1e293b/3b82f6?text=FF'">
+                <div class="card-content">
+                    <div class="card-title">SatoruSatoruTools</div>
+                    <div class="price-list">
+                        <div class="price-item"><span>1 Hari</span> <span>25K</span></div>
+                        <div class="price-item"><span>3 Hari</span> <span>40K</span></div>
+                        <div class="price-item"><span>7 Hari</span> <span>55K</span></div>
+                        <div class="price-item"><span>15 Hari</span> <span>85K</span></div>
+                        <div class="price-item"><span>30 Hari</span> <span>120K</span></div>
+                        <div class="price-item"><span>Life time + Req nama + Logo</span> <span>200K</span></div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        BELI SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 4 (FF FILES) -->
+            <div class="card" data-category="ff">
+                <div class="platform-badge">ANDRO & IOS</div>
+                <img src="ff.jpg" class="card-img" alt="FF Files" onerror="this.src='https://placehold.co/400x400/1e293b/3b82f6?text=FF'">
+                <div class="card-content">
+                    <div class="card-title">FILE FREEFIRE</div>
+                    <div class="price-list">
+                        <div class="price-item"><span>DADA HS</span> <span>50K</span></div>
+                        <div class="price-item"><span>LEHER HS</span> <span>75K</span></div>
+                        <div class="price-item"><span>BADAN HS</span> <span>75K</span></div>
+                        <div class="price-item"><span>AIMBOT</span> <span>50K</span></div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        BELI SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 5 (ML) -->
+            <div class="card" data-category="ml">
+                <div class="platform-badge">ANDRO & IOS</div>
+                <img src="ml.jpg" class="card-img" alt="MLBB Mod" onerror="this.src='https://placehold.co/400x400/1e293b/3b82f6?text=ML'">
+                <div class="card-content">
+                    <div class="card-title">ML MOD MENU</div>
+                    <div class="price-list">
+                        <div class="price-item"><span>3 DAY</span> <span>50K</span></div>
+                        <div class="price-item"><span>7 DAY</span> <span>70K</span></div>
+                        <div class="price-item"><span>15 DAY</span> <span>100K</span></div>
+                        <div class="price-item"><span>30 DAY</span> <span>150K</span></div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        BELI SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 6 (PUBG) -->
+            <div class="card" data-category="pubg">
+                <div class="platform-badge">ANDRO & IOS</div>
+                <img src="pubg.jpg" class="card-img" alt="PUBGM Mod" onerror="this.src='https://placehold.co/400x400/1e293b/3b82f6?text=PUBG'">
+                <div class="card-content">
+                    <div class="card-title">PUBG MOD MENU</div>
+                    <div class="price-list">
+                        <div class="price-item"><span>3 DAY</span> <span>50K</span></div>
+                        <div class="price-item"><span>7 DAY</span> <span>80K</span></div>
+                        <div class="price-item"><span>15 DAY</span> <span>150K</span></div>
+                        <div class="price-item"><span>30 DAY</span> <span>250K</span></div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        BELI SEKARANG
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Bantuan Button (Memunculkan Chat) -->
+    <button class="help-btn" onclick="toggleChat()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+        Pusat Bantuan
+    </button>
+
+    <!-- JavaScript -->
+    <script>
+        // --- KONFIGURASI NOMOR WA BARU ---
+        const NOMOR_WHATSAPP = "6285700513821"; 
+
+        // --- FITUR SIDEBAR ---
+        const menuIcon = document.getElementById('menuIcon');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const closeBtn = document.getElementById('closeBtn');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        menuIcon.addEventListener('click', toggleSidebar);
+        closeBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // --- FITUR FILTER KATEGORI GAME ---
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const cards = document.querySelectorAll('.card');
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.getAttribute('data-filter');
+                filterGame(filter);
+            });
+        });
+
+        function filterGame(filter) {
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (sidebar.classList.contains('active')) {
+                toggleSidebar();
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-filter="all"]').classList.add('active');
+            }
+        }
+
+        // --- FITUR MODAL CHECKOUT & WHATSAPP ---
+        const modal = document.getElementById('checkoutModal');
+        const selectPaket = document.getElementById('modalPackageSelect');
+        const inputNamaItem = document.getElementById('modalItemName');
+
+        function openModal(btnElement) {
+            const card = btnElement.closest('.card');
+            const title = card.querySelector('.card-title').textContent;
+            const priceItems = card.querySelectorAll('.price-item');
+
+            inputNamaItem.value = title;
+            selectPaket.innerHTML = '';
+
+            priceItems.forEach(p => {
+                // Menggunakan textContent agar list yang di-hidden (display: none) tetap terbaca datanya
+                const hari = p.children[0].textContent.trim();
+                const harga = p.children[1].textContent.trim();
+                
+                const option = document.createElement('option');
+                option.value = `${hari}|${harga}`;
+                option.text = `${hari}  -  Rp ${harga}`;
+                selectPaket.appendChild(option);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        function processOrder() {
+            const title = inputNamaItem.value;
+            const valPaket = selectPaket.value;
+            const payment = document.getElementById('modalPaymentSelect').value;
+
+            const [hari, harga] = valPaket.split('|');
+
+            let expiredStr = "Permanent / Sesuai Update";
+            // Jika memilih Life time, jangan hitung tanggal Expired ke depannya
+            if (hari.toUpperCase().includes('HARI') || hari.toUpperCase().includes('DAY')) {
+                const jumlahHari = parseInt(hari);
+                if (!isNaN(jumlahHari)) {
+                    let date = new Date();
+                    date.setDate(date.getDate() + jumlahHari);
+                    const day = ("0" + date.getDate()).slice(-2);
+                    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    const year = date.getFullYear();
+                    expiredStr = `${day}/${month}/${year}`;
+                }
+            }
+
+            const textWA = `ORDER BANG VENZ\nBARANG : ${title}\nHARGA : ${harga}\nHARI : ${hari}\nEXPIERD : ${expiredStr}\nPAYMENT: ${payment}`;
+
+            const urlWA = `https://wa.me/${NOMOR_WHATSAPP}?text=${encodeURIComponent(textWA)}`;
+            window.open(urlWA, '_blank');
+            
+            closeModal();
+        }
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // --- FITUR CHAT AI ---
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
+
+
